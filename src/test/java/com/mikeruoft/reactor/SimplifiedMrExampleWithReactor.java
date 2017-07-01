@@ -21,33 +21,6 @@ import java.util.stream.Collectors;
  */
 public class SimplifiedMrExampleWithReactor {
 
-    private static Flux<List<RoutingInfo>> fromAkaDB() {
-        // since it's not real method to DB, using lazy
-        // flux initialization, Flux.defer
-        return Flux.defer(() -> Flux.just(Arrays.asList(
-                new RoutingInfo(1L, "1"),
-                new RoutingInfo(2L, "2"),
-                new RoutingInfo(3L, "3"),
-                new RoutingInfo(6L, "4"),
-                new RoutingInfo(2L, "5"),
-                new RoutingInfo(5L, "6"),
-                new RoutingInfo(1L, "7"),
-                new RoutingInfo(2L, "8"),
-                new RoutingInfo(6L, "9"),
-                new RoutingInfo(1L, "10"),
-                new RoutingInfo(7L, "11"),
-                new RoutingInfo(9L, "12"),
-                new RoutingInfo(1L, "13")
-        )));
-
-    }
-
-    private static final int MAX_BULK = 3;
-    private static final Random r = new Random();
-    private static int getBulkSize() {
-        return r.nextInt(MAX_BULK) + 1;
-    }
-
     @Test
     public void fluxTest() throws InterruptedException {
 
@@ -104,6 +77,33 @@ public class SimplifiedMrExampleWithReactor {
             });
 
             Thread.sleep(10000L);
+    }
+
+    private static Flux<List<RoutingInfo>> fromAkaDB() {
+        // since it's not real method to DB, using lazy
+        // flux initialization, Flux.defer
+        return Flux.defer(() -> Flux.just(Arrays.asList(
+                new RoutingInfo(1L, "1"),
+                new RoutingInfo(2L, "2"),
+                new RoutingInfo(3L, "3"),
+                new RoutingInfo(6L, "4"),
+                new RoutingInfo(2L, "5"),
+                new RoutingInfo(5L, "6"),
+                new RoutingInfo(1L, "7"),
+                new RoutingInfo(2L, "8"),
+                new RoutingInfo(6L, "9"),
+                new RoutingInfo(1L, "10"),
+                new RoutingInfo(7L, "11"),
+                new RoutingInfo(9L, "12"),
+                new RoutingInfo(1L, "13")
+        )));
+
+    }
+
+    private static final int MAX_BULK = 3;
+    private static final Random r = new Random();
+    private static int getBulkSize() {
+        return r.nextInt(MAX_BULK) + 1;
     }
 
     private static void sendMc(MessageContainer mc) {
