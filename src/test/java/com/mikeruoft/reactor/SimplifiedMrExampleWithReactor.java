@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public class SimplifiedMrExampleWithReactor {
 
     private static Flux<List<RoutingInfo>> fromAkaDB() {
+        // since it's not real method to DB, using lazy
+        // flux initialization, Flux.defer
         return Flux.defer(() -> Flux.just(Arrays.asList(
                 new RoutingInfo(1L, "1"),
                 new RoutingInfo(2L, "2"),
@@ -58,19 +60,22 @@ public class SimplifiedMrExampleWithReactor {
             .flatMap(i -> fromAkaDB())
             // subscribe - actually, starts the flow. Until this subscribe nothing still working
             .subscribe(l -> {
-                // at this point we define what we will do when we receive list of RoutingInfos
+                // at this point we define what we will do WHEN we receive list of RoutingInfos
                 Flux<List<List<RoutingInfo>>> sendMcStream =
-                    // create stream of RoutingInfo from list
+                    // create stream of RoutingInfo from list we received "from" DB
                     Flux.fromIterable(l)
                     // enrich individual RoutingInfo with additional data
                     .map(SimplifiedMrExampleWithReactor::setSerices)
+                    // not actual we can to make this task parallel, too
+                    // just uncomment next line
+                    // .subscribeOn(Schedulers.newParallel("my Thread", 5))
                     // grouped by same message id
                     .groupBy(RoutingInfo::getMessageId, Function.identity())
+                    // convert GroupedFlux (each group) into List
                     .flatMap(groups -> groups.collect(Collectors.toList()))
                     // filter empty lists
                     .filter(rl -> !rl.isEmpty())
-                    // we divide into bulks with
-                    // specified maximum size
+                    // we divide into bulks with specified maximum size
                     .flatMap(rl -> rl.size() > MAX_BULK ?
                         Mono.just(Lists.partition(rl, getBulkSize())) :
                         Mono.just(Collections.singletonList(rl))
@@ -81,6 +86,7 @@ public class SimplifiedMrExampleWithReactor {
                     lr -> {
                         // converts LIst of List of RoutingInfo into stream of individual lists of routing info
                         Flux.fromIterable(lr)
+                        // filter empty lists
                         .filter(rl -> !rl.isEmpty())
                         // convert to stream of MessageContainer
                         .map(sp -> getMC (
@@ -89,6 +95,8 @@ public class SimplifiedMrExampleWithReactor {
                         ))
                         // assign to this stream thread pool executor to use for parallel execution
                         .subscribeOn(Schedulers.fromExecutor(executor))
+                        // or we could create executors from Reactor API, by uncomment next line
+                        // .subscribeOn(Schedulers.newParallel("Send MC Executor", 5))
                         // here we actually start sending MC
                         .subscribe(SimplifiedMrExampleWithReactor::sendMc);
                     }
