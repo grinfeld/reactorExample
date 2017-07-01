@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author Mikhail Grinfeld
  */
-public class SimpliefiedMrExampleWithReactor {
+public class SimplifiedMrExampleWithReactor {
 
     private static Flux<List<RoutingInfo>> fromAkaDB() {
         return Flux.defer(() -> Flux.just(Arrays.asList(
@@ -63,7 +63,7 @@ public class SimpliefiedMrExampleWithReactor {
                     // create stream of RoutingInfo from list
                     Flux.fromIterable(l)
                     // enrich individual RoutingInfo with additional data
-                    .map(SimpliefiedMrExampleWithReactor::setSerices)
+                    .map(SimplifiedMrExampleWithReactor::setSerices)
                     // grouped by same message id
                     .groupBy(RoutingInfo::getMessageId, Function.identity())
                     .flatMap(groups -> groups.collect(Collectors.toList()))
@@ -90,7 +90,7 @@ public class SimpliefiedMrExampleWithReactor {
                         // assign to this stream thread pool executor to use for parallel execution
                         .subscribeOn(Schedulers.fromExecutor(executor))
                         // here we actually start sending MC
-                        .subscribe(SimpliefiedMrExampleWithReactor::sendMc);
+                        .subscribe(SimplifiedMrExampleWithReactor::sendMc);
                     }
                 );
             });
