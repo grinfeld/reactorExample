@@ -31,14 +31,16 @@ public class SimplifiedMrExampleWithReactor {
         Flux.interval(Duration.ofSeconds(3))
             // every 3 seconds when event is emitted - let's take from DB list of RoutingInfo
             .flatMap(i -> fromAkaDB())
-            // subscribe - actually, starts the flow. Until this subscribe nothing still working
+            // subscribe - actually, starts the flow.
+            // Until compiler riches line below, nothing has been executed
             .subscribe(l -> {
                 // at this point we define what we will do WHEN we receive list of RoutingInfos
+                // i.e. lazy definitions of steps we'll perform when flow starts
                 Flux<List<List<RoutingInfo>>> sendMcStream =
                     // create stream of RoutingInfo from list we received "from" DB
                     Flux.fromIterable(l)
                     // enrich individual RoutingInfo with additional data
-                    .map(SimplifiedMrExampleWithReactor::setSerices)
+                    .map(SimplifiedMrExampleWithReactor::setServices)
                     // not actual we can to make this task parallel, too
                     // just uncomment next line
                     // .subscribeOn(Schedulers.newParallel("my Thread", 5))
@@ -57,7 +59,8 @@ public class SimplifiedMrExampleWithReactor {
                 // here we actually starts the flow
                 sendMcStream.subscribe(
                     lr -> {
-                        // converts LIst of List of RoutingInfo into stream of individual lists of routing info
+                        // converts LIst of List of RoutingInfo into stream of individual
+                        // lists of routing info
                         Flux.fromIterable(lr)
                         // filter empty lists
                         .filter(rl -> !rl.isEmpty())
@@ -128,7 +131,7 @@ public class SimplifiedMrExampleWithReactor {
         }
     }
 
-    private static RoutingInfo setSerices(RoutingInfo ri) {
+    private static RoutingInfo setServices(RoutingInfo ri) {
         return ri;
     }
 
