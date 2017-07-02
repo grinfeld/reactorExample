@@ -69,6 +69,8 @@ public class SimplifiedMrExampleWithReactor {
                             sp.get(0).getMessageId(),
                             sp.stream().map(RoutingInfo::getDevice).collect(Collectors.toList())
                         ))
+                        // fetches data from this Flux only first 3 seconds
+                        .takeMillis(3000L)
                         // assign to this stream thread pool executor to use for parallel execution
                         .subscribeOn(Schedulers.fromExecutor(executor))
                         // or we could create executors from Reactor API, by uncomment next line
