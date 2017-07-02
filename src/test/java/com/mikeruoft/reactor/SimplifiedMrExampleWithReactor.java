@@ -41,7 +41,7 @@ public class SimplifiedMrExampleWithReactor {
                     Flux.fromIterable(l)
                     // enrich individual RoutingInfo with additional data
                     .map(SimplifiedMrExampleWithReactor::setServices)
-                    // not actual we can to make this task parallel, too
+                    // actual we can to make this task parallel, too
                     // just uncomment next line
                     // .subscribeOn(Schedulers.newParallel("my Thread", 5))
                     // grouped by same message id
